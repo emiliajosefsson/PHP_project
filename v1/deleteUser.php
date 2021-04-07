@@ -3,17 +3,28 @@
 include '../includes/db.php';
 include '../objects/User.php';
 
+$token = "";
+$error = new stdClass();
+
+if(!isset($_GET['token'])){
+    $error->message = "No session";
+    $error->code = "0012";
+    print_r(json_encode($error));
+    die();
+}
+$token = $_GET['token'];
 
 $user = new User($pdo);
-        
-        if(empty($_GET['id'])) {
-            $error = new stdClass();
-            $error->message = "Vänligen fyll i ett id";
-            $error->code = "0004";
-            echo json_encode($error);
 
-        } else {
-            
-            echo json_encode($user->DeleteUser($_GET['id']));
 
-        }
+if(!$user->ValidToken($token)) {
+    $error->message = "Sessions is over, please log in again";
+    $error->code = "0011";
+    print_r(json_encode($error));
+    die(); 
+} 
+    
+$user = new User($pdo);         
+print_r(json_encode($user->DeleteUser($_GET['token'])));
+
+       

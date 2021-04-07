@@ -1,11 +1,10 @@
 <?php
 
 include '../includes/db.php';
-include '../objects/Product.php';
 include '../objects/User.php';
 
 $token = "";
-$error = new stdClass();
+$error= new stdClass();
 
 if(!isset($_GET['token'])){
     $error->message = "No session";
@@ -23,37 +22,38 @@ if(!$user->ValidToken($token)) {
     $error->code = "0011";
     print_r(json_encode($error));
     die(); 
-}  
+} 
 
-$id = "";
-$productname = "";
-$price = ""; 
+// $id = "";
+$token = $_GET['token'];
+$username = "";
+$password = ""; 
 
-if(!isset($_GET['id'])){
+/* if(!isset($_GET['id'])){
     $error->message = "Please insert an id";
     $error->code = "0007";
     print_r(json_encode($error));
     die();
 }
 
-$id = $_GET['id'];
+$id = $_GET['id']; */
 
-if(!isset($_GET['productname']) && !isset($_GET['price'])){
-    $error->message = "Please insert productname or price";
-    $error->code = "0020";
+if(!isset($_GET['username']) && !isset($_GET['password'])){
+    $error->message = "Please insert username or password";
+    $error->code = "0021";
     print_r(json_encode($error));
     die();
 } 
 
-if(isset($_GET['productname'])){
-    $productname = $_GET['productname'];
+if(isset($_GET['username'])){
+    $username = $_GET['username'];
 }
 
-if(isset($_GET['price'])){
-    $price = $_GET['price'];
+if(isset($_GET['password'])){
+    $password = $_GET['password'];
 }
 
 
-$product = new Product($pdo);
-print_r(json_encode($product->UpdateProduct($id, $productname, $price)));
+$user = new User($pdo);
+print_r(json_encode($user->UpdateUser($token, $username, $password)));
 

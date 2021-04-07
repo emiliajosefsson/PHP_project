@@ -13,50 +13,46 @@ function __construct($db) {
 
 
 function CreateProduct($productname_IN,$price_IN){
-    /* if(empty($productname_IN) && empty($price_IN)) {
-            
-        echo "Vänligen fyll i alla rutor";
-        die();
-
-    } else { */
-        $sql = "SELECT id FROM products WHERE productname=:productname_IN";
-        $stmt = $this->connect->prepare($sql);
-        $stmt->bindParam(":productname_IN", $productname_IN);
+    
+    $sql = "SELECT id FROM products WHERE productname=:productname_IN";
+    $stmt = $this->connect->prepare($sql);
+    $stmt->bindParam(":productname_IN", $productname_IN);
         
-        $error = new stdClass();
+    $error = new stdClass();
 
-        if( !$stmt->execute() ) {
-            $error->message = "Could not execute query!";
-            $error->code = "0001";
-            die();
-        }
+    if( !$stmt->execute() ) {
+        $error->message = "Could not execute query!";
+        $error->code = "0001";
+        return $error;
+    }
 
-        $num_rows = $stmt->rowCount();
-        if($num_rows > 0) {
-            $error->message = "The prodict already exists";
-            $error->code = "0002";
-            die();
-        } 
-
+    $num_rows = $stmt->rowCount();
+    if($num_rows > 0) {
+        $error->message = "The product already exists";
+        $error->code = "0002";
+        return $error;
+    } 
+   
     $sql = "INSERT INTO products (productname, price) VALUES (:productname_IN, :price_IN)";
     $stmt = $this->connect->prepare($sql);
     $stmt->bindParam(":productname_IN", $productname_IN);
     $stmt->bindParam(":price_IN", $price_IN);
 
-
     if( !$stmt->execute() ) {
-        echo "Kunde inte skapa produkten!";
-        die();
-    } else {
+        $error->message = "Could not execute query!";
+        $error->code = "0001";
+        return $error;
+    } 
 
     $this->productname = $productname_IN;
     $this->price = $price_IN;
 
-    return "Produkt ". $this->productname . " är nu skapad med priset " . $this->price . " SEK";
-    
-    
 
-    }
+    $return = new stdClass();
+    $return->message = "Product ". $this->productname . " is now created " . $this->price . " SEK";
+    return $return;
+
+    
 }
 
 function DeleteProduct($id_IN) {
@@ -65,21 +61,81 @@ function DeleteProduct($id_IN) {
     $stmt->bindParam(":id_IN", $id_IN);
     $stmt->execute();
 
-
-    if($stmt->rowCount() <= 0) {
-        echo "Det finns ingen produkt med id  $id_IN";
-        die();
-    }
-
     $this->id = $id_IN;
 
-    return "Produkten $this->id är nu borttagen";
+    $error = new stdClass();
+    if($stmt->rowCount() <= 0) { //kolla upp detta
+        $error->message =  "There is no product with id " . $this->id;
+        $error->code = "0012";
+        return $error;
+    }
+
+   
+    $return = new stdClass();
+    $return->message =  "Product " . $this->id .  " is now deleted";
+    return $return;
 
 }
 
 
 function UpdateProduct($id_IN, $productname_IN = "", $price_IN = "" ) {
-echo "hej";
+    $return = new stdClass();
+    if(!empty($productname_IN)){
+       $return->message = $this->updateProductname($id_IN,$productname_IN);
+    }
+    if(!empty($price_IN)){
+        $return->message =  $this->updatePrice($id_IN,$price_IN);
+    }
+     return $return;
+}
+
+private function updateProductname($id_IN,$productname_IN){
+    $sql = "UPDATE products SET productname = :productname_IN WHERE id = :id_IN";
+    $stmt = $this->connect->prepare($sql);
+    $stmt->bindParam(":productname_IN", $productname_IN);
+    $stmt->bindParam(":id_IN", $id_IN);
+    $stmt->execute();
+
+    $this->id = $id_IN;
+
+    $error = new stdClass();
+    if($stmt->rowCount() < 1) { //kolla upp detta
+        $error->message=  "There is no product with id " . $this->id . " or the product already have this value";
+        $error->code = "0012";
+        return $error;
+       
+    } 
+    /* $this->productname = $productname_IN;
+    $return = new stdClass();
+    $return->message =  "Name is now updated to " . $this->productname;
+    return $return;
+  */
+  return "Product is now updated";
+}
+
+private function updatePrice($id_IN,$price_IN){
+    $sql = "UPDATE products SET price = :price_IN WHERE id = :id_IN";
+    $stmt = $this->connect->prepare($sql);
+    $stmt->bindParam(":price_IN", $price_IN);
+    $stmt->bindParam(":id_IN", $id_IN);
+    $stmt->execute();
+
+    $this->id = $id_IN;
+
+    $error = new stdClass();
+    if($stmt->rowCount() < 1) { //kolla upp detta
+        $error->message=   "There is no product with id " . $this->id . " or the product already have this value";
+        $error->code = "0012";
+        return $error;
+    } 
+    
+   
+    return "Product is now updated";
+    /* $return = new stdClass();
+    $return->message =  "price is now updated to " . $this->price . " SEK";
+    return $return; */
+    
+    // return "price is now updated to " . $this->price . " SEK";
 }
 
 function SearchProduct($productname_IN){
@@ -89,36 +145,41 @@ function SearchProduct($productname_IN){
     $stmt->bindParam(":productname_IN", $productname_IN);
     $stmt->execute();
 
-    //$this->productname = $productname_IN;
 
-     if($stmt->rowCount() <= 0) {
-        echo "Det finns ingen product med namn $productname_IN";
-        die();
+     if($stmt->rowCount() <= 0) { //kolla detta
+        $error = new stdClass();
+        $error->message=  "There is no product with that name";
+        $error->code = "0016";
+        return $error;
     } 
-
-    return json_encode($stmt->fetchAll());
-    // return "Produkterna med namn $productname_IN är följande";
+    $this->productname = $productname_IN;
+    $return = new stdClass();
+    $return->products = $stmt->fetchAll();
+    return $return;
+    
 
 }
 
-function allProducts(){
+function AllProducts(){
     $sql = "SELECT productname, price FROM products";
     $stmt = $this->connect->prepare($sql);
     $stmt->execute();
 
-    return print_r(json_encode($stmt->fetchAll()));
+    $return = new stdClass();
+    $return->products = $stmt->fetchAll();
+    return $return;
 }
 
 
 function SortProduct($sortBy){
     if ($sortBy == "expensive"){
-        $this->sortPriceExpensive();
+        return $this->sortPriceExpensive();
     }else if($sortBy == "cheapest"){
-        $this->sortPriceCheapest();
+        return $this->sortPriceCheapest();
     }else if($sortBy == "first"){
-        $this->sortNameFirst();
+       return  $this->sortNameFirst();
     }else if($sortBy == "last"){
-        $this->sortNameLast();
+        return $this->sortNameLast();
     }
 }
 
@@ -127,7 +188,9 @@ function SortProduct($sortBy){
     $stmt = $this->connect->prepare($sql);
     $stmt->execute(); 
 
-    return  print_r(json_encode($stmt->fetchAll()));
+    $return = new stdClass();
+    $return->products = $stmt->fetchAll();
+    return $return;
 }
 
 private function sortPriceCheapest(){
@@ -135,7 +198,9 @@ private function sortPriceCheapest(){
     $stmt = $this->connect->prepare($sql);
     $stmt->execute(); 
 
-    return  print_r(json_encode($stmt->fetchAll()));
+    $return = new stdClass();
+    $return->products = $stmt->fetchAll();
+    return $return;
 }
 
 private function sortNameFirst(){
@@ -143,14 +208,18 @@ private function sortNameFirst(){
     $stmt = $this->connect->prepare($sql);
     $stmt->execute(); 
 
-    return  print_r(json_encode($stmt->fetchAll()));
+    $return = new stdClass();
+    $return->products = $stmt->fetchAll();
+    return $return;
 }
 private function sortNameLast(){
     $sql = "SELECT productname, price FROM products ORDER BY productname DESC";
     $stmt = $this->connect->prepare($sql);
     $stmt->execute(); 
 
-    return  print_r(json_encode($stmt->fetchAll()));
+    $return = new stdClass();
+    $return->products = $stmt->fetchAll();
+    return $return;
 }
 
 
