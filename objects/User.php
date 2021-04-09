@@ -5,7 +5,6 @@ class User {
 private $connect;     
 private $id;
 private $username;
-//private $password;
 private $token;
 private $salt = "hie23yr8i2hHU€&ml?I";
 
@@ -167,14 +166,14 @@ private function updateToken($token){
 }
 
 function UpdateUser($token_IN, $username_IN = "", $password_IN = "" ) {
-    $return = new stdClass();
+    $res = new stdClass();
     if(!empty($username_IN)){
-       $return->error = $this->updateUsername($token_IN,$username_IN);
+       $res = $this->updateUsername($token_IN,$username_IN);
     }
     if(!empty($password_IN)){
-        $return->error =  $this->updatePassword($token_IN,$password_IN);
+        $res =  $this->updatePassword($token_IN,$password_IN);
     }
-     return $return;
+     return $res;
 }
 
 private function updateUsername($token_IN,$username_IN){
@@ -185,21 +184,18 @@ private function updateUsername($token_IN,$username_IN){
     $stmt->bindParam(":token_IN", $token_IN);
     $stmt->execute();
 
-    $this->username = $username_IN;
 
     $error = new stdClass();
     if($stmt->rowCount() < 1) { 
-        $error->message=  "The user already have this value";
+        $error->message=  "The user already has that value";
         $error->code = "0012";
         return $error;
        
     }  
-    /* $this->productname = $productname_IN;
     $return = new stdClass();
-    $return->message =  "Name is now updated to " . $this->productname;
+    $return->message =  "The user is now updated";
     return $return;
-  */
-  return "User is now updated";
+  
 }
 
 private function updatePassword($token_IN,$password_IN){
@@ -213,21 +209,15 @@ private function updatePassword($token_IN,$password_IN){
 
     $error = new stdClass();
     if($stmt->rowCount() < 1) { 
-        $error->message=  "The user already have this value";
+        $error->message=  "The user already has that value";
         $error->code = "0012";
         return $error;
     } 
-     
-   
-    return "User is now updated";
-    /* $return = new stdClass();
-    $return->message =  "price is now updated to " . $this->price . " SEK";
-    return $return; */
-    
-    // return "price is now updated to " . $this->price . " SEK";
+    $return = new stdClass();
+    $return->message =  "The user is now updated";
+    return $return; 
+
 }
-
-
 
 function DeleteUser($token_IN) {
     $sql = "DELETE users FROM users 

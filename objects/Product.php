@@ -49,7 +49,7 @@ function CreateProduct($productname_IN,$price_IN){
 
 
     $return = new stdClass();
-    $return->message = "Product ". $this->productname . " is now created " . $this->price . " SEK";
+    $return->message = "Product ". $this->productname . " is now created with the price " . $this->price . " SEK";
     return $return;
 
     
@@ -64,7 +64,7 @@ function DeleteProduct($id_IN) {
     $this->id = $id_IN;
 
     $error = new stdClass();
-    if($stmt->rowCount() <= 0) { //kolla upp detta
+    if($stmt->rowCount() == 0) { 
         $error->message =  "There is no product with id " . $this->id;
         $error->code = "0012";
         return $error;
@@ -79,14 +79,14 @@ function DeleteProduct($id_IN) {
 
 
 function UpdateProduct($id_IN, $productname_IN = "", $price_IN = "" ) {
-    $return = new stdClass();
+    $res = new stdClass();
     if(!empty($productname_IN)){
-       $return->message = $this->updateProductname($id_IN,$productname_IN);
+       $res = $this->updateProductname($id_IN,$productname_IN);
     }
     if(!empty($price_IN)){
-        $return->message =  $this->updatePrice($id_IN,$price_IN);
+        $res=  $this->updatePrice($id_IN,$price_IN);
     }
-     return $return;
+     return $res;
 }
 
 private function updateProductname($id_IN,$productname_IN){
@@ -99,18 +99,17 @@ private function updateProductname($id_IN,$productname_IN){
     $this->id = $id_IN;
 
     $error = new stdClass();
-    if($stmt->rowCount() < 1) { //kolla upp detta
-        $error->message=  "There is no product with id " . $this->id . " or the product already have this value";
+    if($stmt->rowCount() < 1) { 
+        $error->message=  "There is no product with id " . $this->id . " or the product already has that value";
         $error->code = "0012";
         return $error;
        
     } 
-    /* $this->productname = $productname_IN;
+    
     $return = new stdClass();
-    $return->message =  "Name is now updated to " . $this->productname;
+    $return->message =  "Product is now updated";
     return $return;
-  */
-  return "Product is now updated";
+
 }
 
 private function updatePrice($id_IN,$price_IN){
@@ -123,19 +122,16 @@ private function updatePrice($id_IN,$price_IN){
     $this->id = $id_IN;
 
     $error = new stdClass();
-    if($stmt->rowCount() < 1) { //kolla upp detta
-        $error->message=   "There is no product with id " . $this->id . " or the product already have this value";
+    if($stmt->rowCount() < 1) { 
+        $error->message=   "There is no product with id " . $this->id . " or the product already has that value";
         $error->code = "0012";
         return $error;
     } 
     
    
-    return "Product is now updated";
-    /* $return = new stdClass();
-    $return->message =  "price is now updated to " . $this->price . " SEK";
-    return $return; */
-    
-    // return "price is now updated to " . $this->price . " SEK";
+    $return = new stdClass();
+    $return->message =  "Product is now updated";
+    return $return;
 }
 
 function SearchProduct($productname_IN){
@@ -146,7 +142,7 @@ function SearchProduct($productname_IN){
     $stmt->execute();
 
 
-     if($stmt->rowCount() <= 0) { //kolla detta
+     if($stmt->rowCount() == 0) { 
         $error = new stdClass();
         $error->message=  "There is no product with that name";
         $error->code = "0016";

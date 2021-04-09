@@ -33,4 +33,4 @@ if(empty($_GET['id'])) {
 } 
 
 $basket = new Basket($pdo);
-print_r(json_encode($basket->DeleteProductsBasket($_GET['id'])));
+print_r(json_encode($basket->DeleteProductsBasket($_GET['id'], $_GET['token'])));

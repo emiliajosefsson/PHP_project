@@ -25,7 +25,7 @@ if(!$user->ValidToken($token)) {
     die(); 
 }
 
-if(empty($_GET['productname']) || empty($_GET['price'])) { //dela på dessa till två if statement? 
+if(empty($_GET['productname']) || empty($_GET['price'])) { 
     $error->message = "Insert a productname and a price!";
     $error->code = "0006";
     print_r(json_encode($error));

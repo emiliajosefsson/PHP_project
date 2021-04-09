@@ -24,22 +24,14 @@ if(!$user->ValidToken($token)) {
     die(); 
 } 
 
-// $id = "";
+
 $token = $_GET['token'];
 $username = "";
 $password = ""; 
 
-/* if(!isset($_GET['id'])){
-    $error->message = "Please insert an id";
-    $error->code = "0007";
-    print_r(json_encode($error));
-    die();
-}
-
-$id = $_GET['id']; */
 
 if(!isset($_GET['username']) && !isset($_GET['password'])){
-    $error->message = "Please insert username or password";
+    $error->message = "Please insert a username or a password";
     $error->code = "0021";
     print_r(json_encode($error));
     die();
